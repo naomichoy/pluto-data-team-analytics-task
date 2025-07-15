@@ -6,8 +6,10 @@ Base = declarative_base()
 class Venue(Base):
     __tablename__ = "venues"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    venue_id = Column(Integer)
+    venue_name = Column(String)
     games = relationship("Game", back_populates="venue")
+    
 
 class Game(Base):
     __tablename__ = "games"

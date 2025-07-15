@@ -2,8 +2,8 @@ from pydantic import BaseModel
 
 # 1. Venue Schemas
 class VenueBase(BaseModel):
-    id: int
-    name: str
+    venue_id: int
+    venue_name: str
 
 class VenueCreate(VenueBase):
     pass
@@ -25,6 +25,7 @@ class GameCreate(GameBase):
 
 class Game(GameBase):
     id: int
+    venue_name: str
 
     class Config:
         from_attributes = True
@@ -40,5 +41,11 @@ class SimulationCreate(SimulationBase):
     pass
 
 class Simulation(SimulationBase):
+    
     class Config:
         from_attributes = True
+
+# 4. Team Schemas        
+class Team(BaseModel):
+    team_id: int
+    team: str
