@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from app import models
+import models
 from pathlib import Path
 import pandas as pd
 
@@ -17,15 +17,19 @@ def get_db():
 
 # Load CSV and populate DB
 def init_db():
-    from app.models import Base
+    from models import Base
     Base.metadata.create_all(bind=engine)
 
     session = SessionLocal()
 
     # Load CSVs
-    data_path = Path(__file__).resolve().parent.parent / "data"
+    global games_df, venues_df, simulations_df
+    data_path = Path(__file__).resolve().parent / "data"
+    print(f"Loading data from {data_path}")
     games_df = pd.read_csv(data_path / "games.csv")
-    venues_df = pd.read_csv(data_path / "venues.csv")
+    games_df.insert(0, 'id', range(1, 1 + len(games_df)))
+    venues_df = pd.read_csv(data_path /"venues.csv")
+    venues_df = venues_df.rename(columns={'venue_id': 'id', 'venue_name': 'name'})
     simulations_df = pd.read_csv(data_path / "simulations.csv")
 
     # Optional: Clear old data

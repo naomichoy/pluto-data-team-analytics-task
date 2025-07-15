@@ -1,25 +1,44 @@
-# app/schemas.py
 from pydantic import BaseModel
-from typing import List
 
-class Game(BaseModel):
-    id: int
-    home_team: str
-    away_team: str
-    venue_id: int
-
-class Venue(BaseModel):
+# 1. Venue Schemas
+class VenueBase(BaseModel):
     id: int
     name: str
 
-class GameDetail(BaseModel):
+class VenueCreate(VenueBase):
+    pass
+
+class Venue(VenueBase):
+
+    class Config:
+        from_attributes = True
+
+# 2. Game Schemas
+class GameBase(BaseModel):
     home_team: str
     away_team: str
-    venue: str
+    date: str
+    venue_id: int
 
-class SimulationResult(BaseModel):
-    home_team: str
-    away_team: str
-    home_runs: List[int]
-    away_runs: List[int]
+class GameCreate(GameBase):
+    pass
 
+class Game(GameBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+# 3. Simulation Schemas
+class SimulationBase(BaseModel):
+    team_id: int
+    team: str
+    simulation_run: int
+    results: int
+
+class SimulationCreate(SimulationBase):
+    pass
+
+class Simulation(SimulationBase):
+    class Config:
+        from_attributes = True

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.db import get_db, init_db
-from app.routers import games, venues, simulations
+from db import get_db, init_db
+from routers import games, venues, simulations
 
 app = FastAPI()
 
@@ -14,10 +14,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.on_event("startup")
 def startup_event():
     init_db()
+    
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Baseball Simulation API"}
 
 # Register API routers
 app.include_router(games.router)

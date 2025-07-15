@@ -7,19 +7,22 @@ class Venue(Base):
     __tablename__ = "venues"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
+    games = relationship("Game", back_populates="venue")
 
 class Game(Base):
     __tablename__ = "games"
     id = Column(Integer, primary_key=True, index=True)
     home_team = Column(String)
     away_team = Column(String)
+    date = Column(String)
     venue_id = Column(Integer, ForeignKey("venues.id"))
-    venue = relationship("Venue")
+    
+    venue = relationship("Venue", back_populates="games")
 
 class Simulation(Base):
     __tablename__ = "simulations"
-    id = Column(Integer, primary_key=True, index=True)
-    game_id = Column(Integer, ForeignKey("games.id"))
-    home_runs = Column(Integer)
-    away_runs = Column(Integer)
-    game = relationship("Game")
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    team_id = Column(Integer, index=True)
+    team = Column(String, index=True)
+    simulation_run = Column(Integer)
+    results = Column(Integer)

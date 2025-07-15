@@ -1,9 +1,24 @@
 # app/routers/venues.py
-from fastapi import APIRouter
-from app import db, schemas
+from fastapi import APIRouter, HTTPException
+import db, schemas
 
 router = APIRouter(prefix="/venues", tags=["venues"])
 
 @router.get("/", response_model=list[schemas.Venue])
 def list_venues():
     return db.venues_df.to_dict(orient="records")
+
+@router.get("/{venue_id}", response_model=schemas.Venue)
+def get_venue(venue_id: int):
+    match = db.venues_df[db.venues_df["id"] == venue_id]
+    if match.empty:
+        raise HTTPException(status_code=404, detail="Venue not found")
+
+    venue = match.iloc[0]
+    return {
+        "id": int(venue["id"]),
+        "name": venue["name"]
+    }
+
+
+
