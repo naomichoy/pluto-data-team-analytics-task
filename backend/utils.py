@@ -1,7 +1,14 @@
-def calculate_win_percentage(simulations, for_home=True):
-    total = len(simulations)
-    if total == 0:
-        return 0.0
-    wins = sum(1 for sim in simulations if sim['home_runs'] > sim['away_runs']) if for_home else \
-           sum(1 for sim in simulations if sim['away_runs'] > sim['home_runs'])
-    return (wins / total) * 100
+import pandas as pd
+
+def calculate_home_win_percentage(home_team: str, away_team: str, simulations_df: pd.DataFrame) -> float:
+
+    home_sims = simulations_df[simulations_df['team'] == home_team]['results'].tolist()
+    away_sims = simulations_df[simulations_df['team'] == away_team]['results'].tolist()
+    
+    sim_len = min(len(home_sims), len(away_sims))
+    home_sims = home_sims[:sim_len]
+    away_sims = away_sims[:sim_len]
+    
+    win_count = sum(h > a for h, a in zip(home_sims, away_sims))
+    
+    return 100.0 * win_count / sim_len if sim_len > 0 else 0

@@ -23,15 +23,18 @@ def init_db():
     session = SessionLocal()
 
     # Load CSVs
-    global games_df, venues_df, simulations_df, games_join_venue_df
+    global games_df, venues_df, simulations_df, games_join_venue_df, team_names_df
     data_path = Path(__file__).resolve().parent / "data"
     print(f"Loading data from {data_path}")
+    
     games_df = pd.read_csv(data_path / "games.csv")
     games_df.insert(0, 'id', range(1, 1 + len(games_df)))
     venues_df = pd.read_csv(data_path /"venues.csv")
     simulations_df = pd.read_csv(data_path / "simulations.csv")
+    
     games_join_venue_df = games_df.merge(venues_df, on="venue_id", how="left")
-    # print(games_join_venue_df.head())
+    team_names_df = simulations_df[['team_id', 'team']].drop_duplicates()
+    # print(team_names_df.head())
 
     # Optional: Clear old data
     session.query(models.Game).delete()
