@@ -9,6 +9,11 @@ router = APIRouter(prefix="/simulations", tags=["simulations"])
 def list_simulations():
     return db.simulations_df.to_dict(orient="records")
 
+# TODO: Implement bins, check perplexity
+@router.get("/graph", response_model=list[schemas.Simulation])
+def list_simulations_graph():
+    return db.simulations_df.to_dict(orient="records")
+
 @router.get("/teams", response_model=list[schemas.Team])
 def list_unique_teams():
     unique_teams = db.team_names_df.to_dict(orient='records')
