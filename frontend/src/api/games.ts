@@ -1,11 +1,15 @@
-import { Game } from "../types";
+import { apiClient } from './client';
+import type { Game } from '../types/index';
 
-export async function fetchGames(): Promise<Game[]> {
-  const res = await fetch("http://localhost:8000/games/");
-  return await res.json();
-}
 
-export async function fetchGame(gameId: number): Promise<Game> {
-  const res = await fetch(`http://localhost:8000/games/${gameId}`);
-  return await res.json();
-}
+export const gamesApi = {
+  listGames: async (): Promise<Game[]> => {
+      try {
+          const response = await apiClient.get<Game[]>('/games/');
+          return response.data;
+      } catch (error) {
+          console.error("Error fetching games:", error);
+          return []; // Return empty array on error
+      }
+  },
+};

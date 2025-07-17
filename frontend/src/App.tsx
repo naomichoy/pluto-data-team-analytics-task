@@ -1,60 +1,60 @@
-import React, { useEffect, useState } from "react";
-import { fetchGames, fetchGame } from "./api/games";
-import { fetchSimulations, fetchWinPercentage } from "./api/simulations";
-import { Game, Simulation } from "./types";
-import GameSelector from "./components/GameSelector";
-import GameDetails from "./components/GameDetails";
-import SimulationHistogram from "./components/SimulationHistogram";
-import WinPercentage from "./components/WinPercentage";
+import React, { useState, useEffect } from 'react';
 
-function App() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [selectedGameId, setSelectedGameId] = useState<number>();
-  const [selectedGame, setSelectedGame] = useState<Game>();
-  const [homeSims, setHomeSims] = useState<number[]>([]);
-  const [awaySims, setAwaySims] = useState<number[]>([]);
-  const [winPercentage, setWinPercentage] = useState<number>(0);
+// Import components
+import Header from './components/Header';
+import PageHeader from './components/PageHeader';
 
-  useEffect(() => {
-    fetchGames().then(setGames);
-  }, []);
+// Import pages
+import HomePage from './pages/HomePage';
+import GamesPage from './pages/GamesPage';
+import VenueListPage from './pages/VenueListPage';
+import VenueGamesPage from './pages/VenueGamesPage';
+import SimulationTeamListPage from './pages/SimulationTeamListPage';
+import TeamWinPercentagePage from './pages/TeamWinPercentagePage';
+import SimulationDetailsPage from './pages/SimulationDetailsPage';
+import HistogramPage from './pages/HistogramPage';
 
-  useEffect(() => {
-    if (!selectedGameId) return;
+// Import types
+import type { Venue, Team } from './types';
 
-    fetchGame(selectedGameId).then(game => {
-      setSelectedGame(game);
+// Import API clients
+import { venuesApi } from './api/venues';
+import { simulationsApi } from './api/simulations';
 
-      Promise.all([
-        fetchSimulationsByTeam(game.home_team),
-        fetchSimulationsByTeam(game.away_team),
-        fetchWinPercentage(game.id)  // assuming win % calculated for the game
-      ]).then(([homeData, awayData, winData]) => {
-        setHomeSims(homeData.map(d => d.results));
-        setAwaySims(awayData.map(d => d.results));
-        setWinPercentage(winData.home_win_percentage);
-      });
-    });
-  }, [selectedGameId]);
+const App: React.FC = () => {
+    const [page, setPage] = useState('Home');
+    const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null);
+    const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+    const [venues, setVenues] = useState<Venue[]>([]);
+    const [teams, setTeams] = useState<Team[]>([]);
 
-  return (
-    <div>
-      <h1>Cricket Simulation Viewer</h1>
-      <GameSelector
-        games={games}
-        selectedGameId={selectedGameId}
-        onSelect={setSelectedGameId}
-      />
-      <GameDetails game={selectedGame} />
-      <WinPercentage value={winPercentage} team={selectedGame?.home_team ?? ""} />
-      <SimulationHistogram
-        homeSimulations={homeSims}
-        awaySimulations={awaySims}
-        homeTeam={selectedGame?.home_team ?? ""}
-        awayTeam={selectedGame?.away_team ?? ""}
-      />
-    </div>
-  );
+    useEffect(() => {
+        venuesApi.listVenues().then(setVenues);
+        simulationsApi.listTeams().then(setTeams);
+    }, []);
+    
+    const selectedVenue = venues.find(v => v.venue_id === selectedVenueId);
+    const selectedTeam = teams.find(t => t.team_id === selectedTeamId);
+
+    const renderPage = () => {
+        switch (page) {
+            case 'Games': return <GamesPage />;
+            case 'Venues': return <VenueListPage onSelectVenue={(id) => { setSelectedVenueId(id); setPage('VenueDetails'); }} />;
+            case 'VenueDetails': return selectedVenue ? <VenueGamesPage venue={selectedVenue} onBack={() => setPage('Venues')} /> : null;
+            case 'Simulations': return <SimulationTeamListPage onShowWinPercentage={(id) => { setSelectedTeamId(id); setPage('TeamWinPercentage'); }} onShowDetails={(id) => { setSelectedTeamId(id); setPage('SimulationDetails'); }} />;
+            case 'TeamWinPercentage': return selectedTeam ? <TeamWinPercentagePage team={selectedTeam} onBack={() => setPage('Simulations')} /> : null;
+            case 'SimulationDetails': return selectedTeam ? <SimulationDetailsPage team={selectedTeam} onBack={() => setPage('Simulations')} /> : null;
+            case 'Histogram': return <HistogramPage />;
+            case 'Home': default: return <HomePage />;
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-100 font-sans">
+            <Header activePage={page} setActivePage={(p) => { setPage(p); setSelectedTeamId(null); setSelectedVenueId(null); }} />
+            <main className="container mx-auto px-4 py-6">{renderPage()}</main>
+        </div>
+    );
 }
 
 export default App;
