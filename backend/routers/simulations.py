@@ -43,7 +43,7 @@ def get_simulation(team_id: int):
         raise HTTPException(status_code=404, detail="Simulation not found for this team")
     return match.to_dict(orient="records")
 
-@router.get("/teams/{team_id}/win_percentage")
+@router.get("/teams/{team_id}/home_win_percentage")
 def home_win_percentage(team_id: int):
     home_team_name_from_id = db.team_names_df[db.team_names_df['team_id'] == team_id]['team'].iloc[0]
     print(f"[Home Win percentage] Home team name from ID: {home_team_name_from_id}")

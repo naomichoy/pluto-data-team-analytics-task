@@ -4,12 +4,13 @@ import type { Game, Venue } from '../types';
 import FilterableTable from '../components/FilterableTable';
 import PageHeader from '../components/PageHeader';
 
-interface VenueGamesPageProps {
+export interface VenueGamesPageProps {
     venue: Venue;
     onBack: () => void;
+    onSelectGame: (gameId: number) => void;
 }
 
-const VenueGamesPage: React.FC<VenueGamesPageProps> = ({ venue, onBack }) => {
+const VenueGamesPage: React.FC<VenueGamesPageProps> = ({ venue, onBack, onSelectGame }) => {
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -42,6 +43,8 @@ const VenueGamesPage: React.FC<VenueGamesPageProps> = ({ venue, onBack }) => {
                     { key: 'away_team', label: 'Away Team' },
                     { key: 'date', label: 'Date' }
                 ]}
+
+                renderActions={(game) => (<button onClick={() => onSelectGame(game.id)} className="bg-cyan-600 text-white px-3 py-1 rounded-md hover:bg-cyan-700">Details</button>)}
             />
         </div>
     );

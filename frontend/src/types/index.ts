@@ -5,6 +5,7 @@ export interface Game {
   date: string;
   venue_id: number;
   venue_name: string;
+  home_win_percentage: number;
 }
 
 export interface Venue {

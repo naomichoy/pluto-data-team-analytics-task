@@ -1,3 +1,5 @@
+// frontend/src/components/GameDetails.tsx
+
 import React from "react";
 import type { Game } from "./GameSelector";
 

@@ -1,3 +1,5 @@
+// frontend/src/components/GameSelector.tsx
+
 import React from "react";
 
 export interface Game {

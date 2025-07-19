@@ -9,3 +9,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 
 it will be available at http://localhost:8000/
+
+## documentation
+
+http://localhost:8000/docs
