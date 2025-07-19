@@ -1,7 +1,17 @@
+// src/pages/TeamWinPercentagePage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { simulationsApi } from '../api/simulations';
-import type { Team, WinPercentageData } from '../types';
+import type { Team } from '../types';
 import PageHeader from '../components/PageHeader';
+import FilterableTable, { type Column } from '../components/FilterableTable';
+
+interface WinPercentageRowData {
+    away_team: string;
+    venue_name: string;
+    date: string;
+    home_win_percentage: number; 
+}
 
 interface TeamWinPercentagePageProps {
     team: Team;
@@ -9,19 +19,56 @@ interface TeamWinPercentagePageProps {
 }
 
 const TeamWinPercentagePage: React.FC<TeamWinPercentagePageProps> = ({ team, onBack }) => {
-    const [data, setData] = useState<WinPercentageData[]>([]);
+    const [data, setData] = useState<WinPercentageRowData[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        simulationsApi.getHomeWinPercentageForTable(team.team_id).then(d => {
-            setData(d);
+        setLoading(true);
+        simulationsApi.getHomeWinPercentageForTable(team.team_id).then((apiData: WinPercentageRowData[]) => {
+            const formattedData = apiData.map(item => ({
+                away_team: item.away_team,
+                venue_name: item.venue_name,
+                date: new Date(item.date).toLocaleDateString(),
+                home_win_percentage: item.home_win_percentage, // Keep the original number
+            }));
+            setData(formattedData);
+            setLoading(false);
+        }).catch(error => {
+            console.error("Failed to fetch win percentage data:", error);
             setLoading(false);
         });
     }, [team.team_id]);
+    
+    // Helper function to get the correct Tailwind CSS class based on the win rate
+    const getWinPercentageColor = (percentage: number): string => {
+        if (percentage < 40) {
+            return 'text-red-600 font-semibold';
+        }
+        else if (percentage > 55) {
+            return 'text-green-600 font-semibold';
+        }
+        return 'text-black';
+    };
 
-    const columns: { key: keyof WinPercentageData; label: string }[] = [
-        { key: 'metric', label: 'Metric' },
-        { key: 'value', label: 'Value' }
+    const columns: Column<WinPercentageRowData>[] = [
+        { key: 'away_team', label: 'Away Team' },
+        { key: 'venue_name', label: 'Venue' },
+        { key: 'date', label: 'Date' },
+        {
+            key: 'home_win_percentage',
+            label: 'Home Win %',
+            render: (item) => (
+                <span className={getWinPercentageColor(item.home_win_percentage)}>
+                    {item.home_win_percentage} %
+                </span>
+            )
+        }
+    ];
+
+    const filterableCols: Column<WinPercentageRowData>[] = [
+        { key: 'away_team', label: 'Away Team' },
+        { key: 'venue_name', label: 'Venue' },
+        { key: 'date', label: 'Date' }
     ];
 
     if (loading) {
@@ -31,26 +78,11 @@ const TeamWinPercentagePage: React.FC<TeamWinPercentagePageProps> = ({ team, onB
     return (
         <div className="p-6">
             <PageHeader title={`Home Win % for ${team.team}`} onBack={onBack} />
-            <div className="bg-white shadow-lg rounded-lg p-6">
-                <table className="w-full text-left table-auto">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            {columns.map(c => (
-                                <th key={String(c.key)} className="p-4 font-semibold">{c.label}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.map((row, i) => (
-                            <tr key={i} className="border-b hover:bg-gray-50">
-                                {columns.map(c => (
-                                    <td key={String(c.key)} className="p-4">{row[c.key]}</td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <FilterableTable
+                columns={columns}
+                data={data}
+                filterableCols={filterableCols}
+            />
         </div>
     );
 };

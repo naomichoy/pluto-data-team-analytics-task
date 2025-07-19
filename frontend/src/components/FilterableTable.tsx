@@ -1,16 +1,22 @@
+// src/components/FilterableTable.tsx
+
 import React, { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 
 export interface Column<T> {
     key: keyof T;
     label: string;
+    // Add this optional render function to the Column interface
+    render?: (item: T) => React.ReactNode;
 }
+
 interface FilterableTableProps<T> {
     data: T[];
     columns: Column<T>[];
     filterableCols: Column<T>[];
     renderActions?: (item: T) => React.ReactNode;
 }
+
 const FilterableTable = <T extends object>({ data, columns, filterableCols, renderActions }: FilterableTableProps<T>) => {
     const [filters, setFilters] = useState<Partial<Record<keyof T, string>>>({});
     const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'ascending' | 'descending' } | null>(null);
@@ -61,7 +67,12 @@ const FilterableTable = <T extends object>({ data, columns, filterableCols, rend
                     </tr></thead>
                     <tbody>{filteredData.map((row, rowIndex) => (
                         <tr key={rowIndex} className="border-b hover:bg-gray-50">
-                            {columns.map(col => (<td key={String(col.key)} className="p-4">{String(row[col.key])}</td>))}
+                            {columns.map(col => (
+                                <td key={String(col.key)} className="p-4">
+                                    {/* Use the render function if it exists, otherwise display the data as a string */}
+                                    {col.render ? col.render(row) : String(row[col.key])}
+                                </td>
+                            ))}
                             {renderActions && <td className="p-4">{renderActions(row)}</td>}
                         </tr>
                     ))}</tbody>

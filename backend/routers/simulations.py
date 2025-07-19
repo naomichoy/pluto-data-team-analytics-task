@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
+import pandas as pd
 import db, schemas
 
 from utils import calculate_home_win_percentage
@@ -10,9 +12,22 @@ def list_simulations():
     return db.simulations_df.to_dict(orient="records")
 
 # TODO: Implement bins, check perplexity
-@router.get("/graph", response_model=list[schemas.Simulation])
-def list_simulations_graph():
-    return db.simulations_df.to_dict(orient="records")
+@router.get("/histogram", response_model=list[schemas.Simulation])
+def list_simulations_histogram():
+    df = db.simulations_df.copy()
+    if df.empty:
+        raise HTTPException(status_code=404, detail="No simulations found")
+    
+    bins = [80, 100, 120, 140, 160, 180, 200, 220, 240]
+    bin_labels = [f"{bins[i]}-{bins[i+1]}" for i in range(len(bins)-1)]
+    df['bin'] = pd.cut(df['results'], bins=bins, right=False, labels=bin_labels)
+    grouped = df.groupby(['team', 'bin']).size().unstack(fill_value=0)
+    percentages = grouped.div(grouped.sum(axis=1), axis=0)
+    result = {
+        "bins": bin_labels,
+        "teams": percentages.to_dict(orient="index")
+    }
+    return JSONResponse(result)
 
 @router.get("/teams", response_model=list[schemas.Team])
 def list_unique_teams():

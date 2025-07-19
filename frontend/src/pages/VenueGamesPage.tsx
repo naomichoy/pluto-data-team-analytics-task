@@ -39,7 +39,8 @@ const VenueGamesPage: React.FC<VenueGamesPageProps> = ({ venue, onBack }) => {
                 columns={columns}
                 filterableCols={[
                     { key: 'home_team', label: 'Home Team' },
-                    { key: 'away_team', label: 'Away Team' }
+                    { key: 'away_team', label: 'Away Team' },
+                    { key: 'date', label: 'Date' }
                 ]}
             />
         </div>

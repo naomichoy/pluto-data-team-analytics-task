@@ -25,6 +25,22 @@ export interface Simulation {
 }
 
 export interface WinPercentageData {
-  metric: string;
-  value: string;
+  id: number;
+  home_team: string;
+  away_team: string;
+  date: string;
+  venue_id: number;
+  venue_name: string;
+  home_win_percentage: number;
 }
+export interface HistogramResponse {
+  bins: string[];
+  teams: {
+      [teamName: string]: {
+          [bin: string]: number;
+      };
+  };
+}
+
+
+
