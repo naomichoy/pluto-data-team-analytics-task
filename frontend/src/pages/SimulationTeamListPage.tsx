@@ -1,15 +1,15 @@
+// src/pages/SimulationTeamListPage.tsx
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { simulationsApi } from '../api/simulations';
 import type { Team } from '../types';
 import FilterableTable from '../components/FilterableTable';
 import PageHeader from '../components/PageHeader';
 
-interface SimulationTeamListPageProps {
-    onShowWinPercentage: (teamId: number) => void;
-    onShowDetails: (teamId: number) => void;
-}
+const SimulationTeamListPage: React.FC = () => {
+    const navigate = useNavigate();
 
-const SimulationTeamListPage: React.FC<SimulationTeamListPageProps> = ({ onShowWinPercentage, onShowDetails }) => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -39,13 +39,13 @@ const SimulationTeamListPage: React.FC<SimulationTeamListPageProps> = ({ onShowW
                 renderActions={(team) => (
                     <div className="space-x-2">
                         <button
-                            onClick={() => onShowWinPercentage(team.team_id)}
+                            onClick={() => navigate(`/simulations/${team.team_id}/win-percentage`, { state: { team: team } })}
                             className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700"
                         >
                             Home Wins %
                         </button>
                         <button
-                            onClick={() => onShowDetails(team.team_id)}
+                            onClick={() => navigate(`/simulations/${team.team_id}/details`, { state: { team: team } })}
                             className="bg-cyan-600 text-white px-3 py-1 rounded-md hover:bg-cyan-700"
                         >
                             Details
