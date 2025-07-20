@@ -6,6 +6,7 @@ import { Home, LinkIcon } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import type { Game } from '../types';
 
+import { getWinPercentageColor } from '../utils/colors';
 interface GameDetailsPageProps { gameId: number; onBack: () => void; onSelectVenue: (venueId: number) => void; }
 const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ gameId, onBack, onSelectVenue }) => {
     const [game, setGame] = useState<Game | null>(null);
@@ -41,7 +42,7 @@ const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ gameId, onBack, onSel
                     <div className="flex flex-col items-center">
                         <span className="text-gray-700">{game.home_team}</span>
                         {winPercentage !== null && (
-                            <span className="text-sm font-medium text-green-600 mt-1">
+                            <span className={`text-sm mt-1 ${getWinPercentageColor(winPercentage)}`}>
                                 Win %: {winPercentage.toFixed(1)}%
                             </span>
                         )}
